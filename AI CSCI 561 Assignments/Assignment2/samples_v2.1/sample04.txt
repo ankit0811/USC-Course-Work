@@ -1,0 +1,5 @@
+Traitor1(Anakin)
+3
+ViterbiSquirrel(x) => Traitor(x)
+Knows(Sidious, Pine)
+Resource(Pine)
