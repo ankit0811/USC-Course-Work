@@ -1,0 +1,119 @@
+<html>
+    <title>
+    </title>
+    <style>
+    input {
+        width:25%;
+    }
+    </style>
+    <body>
+    <form  style="text-align: center;">
+        <h1>Enter URL  for Newspaper List XML File</h1>
+        <input type="text" name="inoutXML"><br><br>
+        <button type="button" onclick="loadXMLDoc(inoutXML.value)">Submit Query</button>
+    </form>
+    
+    <script type="text/javascript">
+        function loadXMLDoc(URL){
+            if (URL.trim() == ''){
+                window.alert("You made a boo boo :( \nPls enter a valid URL");
+            }
+            else{
+            if (window.XMLHttpRequest){
+                xmlHTTP=new XMLHttpRequest();
+            }
+            else{
+                xmlHTTP=new ActiveXObject("Microsoft.XMLHTTP");
+            }
+            
+            
+            xmlHTTP.open("GET",URL,false);
+            xmlHTTP.send();
+            xmlDoc=xmlHTTP.responseXML;
+            /*var parser = new DOMParser();
+            var doc = parser.parseFromString(URL, "application/xml");*/
+            // print the name of the root element or error message
+            
+            getData(xmlDoc);
+            /*xmlHTTP.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                getData(xmlDoc);
+    
+                }
+            }*/
+        
+            
+            }
+            
+            
+            
+        }
+        
+        function getData(xmlDoc){
+            var html_text="<html><body><h1>Hello World</h1></body></html>";
+            var Workbook=xmlDoc.getElementsByTagName("Workbook")[0];
+            var Table=Workbook.children[0];
+            var Header=Table.children[0];
+            var Data=Header.children;
+            var DataLength=Data.length;
+            HTMLStr="<html><head><style>table, th, td { border: 1px solid black;}</style></head><body><table><tr>";
+            //For getting headers
+            for (var i=0; i< DataLength; i++){
+                HTMLStr=HTMLStr+"<td>"+Data[i].innerHTML+"</td>";
+            }
+            
+            //Ending tr tag for header
+            HTMLStr=HTMLStr+"</tr>";
+            
+            //Getting data for news list
+            var row=xmlDoc.getElementsByTagName("Row");
+            var rowLength=row.length;
+            
+            for (var i =0;i<rowLength;i++){
+                var slot="",newspaper="",location="",homepage="",logo="";
+                for (var j = 0;j<row[i].children.length; j++){
+                    if (row[i].children[j].nodeName=="Slot")
+                        slot=row[i].children[j].innerHTML;
+                    if (row[i].children[j].nodeName=="Newspaper")    
+                        newspaper=row[i].children[j].innerHTML;
+                    if (row[i].children[j].nodeName=="Location"){
+                        var city="",state="";
+                        location=row[i].children[j];
+                        for (var k = 0; k<location.children.length; k++){
+                            if (location.children[k].nodeName=="City")
+                                city=location.children[k].innerHTML;
+                            if (location.children[k].nodeName=="State")
+                                state=location.children[k].innerHTML;
+                        }
+                    }
+                    if (row[i].children[j].nodeName=="HomePage")    
+                        homepage=row[i].children[j].innerHTML;
+                    if (row[i].children[j].nodeName=="Logo")    
+                        logo=row[i].children[j].innerHTML;
+                }
+                location="<ul>"
+                if (city != "")
+                    location=location+"<li>"+city+"</li>";
+                if (state != "")
+                    location=location+"<li>"+state+"</li>";
+                location=location+"</ul>"
+                    
+                    
+                HTMLStr=HTMLStr+"<tr><td>"+slot+"</td><td>"+newspaper+"</td><td>"+location+"</td><td><a href="+homepage+">"+homepage+"</a></td><td><img src="+logo+"></img></td></tr>";    
+            }
+                    
+            //End of HTML table body HTML        
+            HTMLStr=HTMLStr+"</table></body></html>";
+            
+            //Display the result in a new pop up window
+            result_window = window.open("","XML","width=400,height=200,scrollbars=yes");
+			result_window.document.open("","XML","width=400,height=200,scrollbars=yes");
+			result_window.document.write(HTMLStr);
+			result_window.document.close();
+            
+        }
+        
+        
+    </script>
+    </body>
+</html>
