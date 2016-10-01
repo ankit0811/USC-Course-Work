@@ -31,7 +31,7 @@ def getWeightsRidge(x,y,lambdas):
 
 
 
-np.set_printoptions(precision=6,suppress=True);
+np.set_printoptions(precision=15,suppress=True);
 data=np.array(np.genfromtxt("DataHw2.txt"));
 
 test_x=np.zeros(shape=(len(data)/7+1,13));
@@ -41,7 +41,6 @@ test_y=np.zeros(shape=(len(data)/7+1,1));
 train_y=np.zeros(shape=(len(data)-len(test_y),1));
 
 print(data[0,13])
-
 k=0;l=0;
 for i in range(len(data)):
         #print i,i%7
@@ -100,7 +99,7 @@ for i in range(len(l)):
     print "MSE for Testing (Ridge Regressor lambda= ",l[i],"):", MSETest
 
 #Ridge with diff lambda values
-binRowNos=np.zeros(shape=(44,10))
+'''binRowNos=np.zeros(shape=(44,10))
 data_i=0;
 """for i in range(len(binRowNos)):
     for j in range(10):
@@ -171,7 +170,7 @@ while (tryLambda <= 10.0):
     tryLambda=tryLambda+0.5
     #print "tryLambda=",tryLambda
 
-'''exit(1)
+#exit(1)
 
 tryLambda=0.0001
 incr=0;
@@ -239,7 +238,7 @@ featureTest_xb_bias=np.insert(featureTest_x_b,0,1,axis=1)
 weightsTrain=getWeights(featureTrain_xb_bias,train_y)
 predictTrain_yb=featureTrain_xb_bias.dot(weightsTrain)
 MSETrain=getMSE(predictTrain_yb,train_y)
-print "MSE for 1 features",featuresSelectedTillNow,"Training(LR):", MSETrain
+print "MSE for 1 features",[val+1 for val in featuresSelectedTillNow],"Training(LR):", MSETrain
 residual_b=train_y-predictTrain_yb
 
 
@@ -269,7 +268,7 @@ for i in range(3):
     predictTest_yb=featureTest_xb_bias.dot(weightsTrain)
     MSETest=getMSE(predictTest_yb,test_y)
 
-    print "MSE for",i+2,"features",featuresSelectedTillNow,"Training(LR):", MSETrain,"Testing(LR):",MSETest
+    print "MSE for",i+2,"features", [val+1 for val in featuresSelectedTillNow],"Training(LR):", MSETrain,"Testing(LR):",MSETest
     residual_b=train_y-predictTrain_yb
 
 
@@ -281,18 +280,97 @@ for i in range(3):
 
 
 #******************* Brute Force *******************#
+BruteForceDict={}
+keyFeature=""
+for i in range(len(train_x[0])):
+    for j in range(i,len(train_x[0])):
+        for k in range(j,len(train_x[0])):
+            for l in range(k,len(train_x[0])):
+                if (i<j and j<k and k<l ):
+                    bruteForceIdx=[i,j,k,l]
+                    #print len(train_x[0]),i,j,k,l
+                    keyFeature=i,j,k,l
+                    bruteForceTrain_x=train_x[:,bruteForceIdx]
+
+                    #Add 1 as a bias for w0 in train and test
+                    bruteForceTrain_x_bias=np.insert(bruteForceTrain_x,0,1,axis=1)
+                    #computing W-lms =inv(xT * x) * xT * y
+                    weightsTrain=getWeights(bruteForceTrain_x_bias,train_y)
+                    bruteForcePredictTrain_y=bruteForceTrain_x_bias.dot(weightsTrain)
+                    BruteForceDict[keyFeature]=getMSE(bruteForcePredictTrain_y,train_y)[0]
+                    #print "MSE for 4 features Training(LR):", MSETrain
+
+'''                 bruteForcePredictTest_y=bruteForceTest_x.dot(weightsTrain)
+                    MSETest=getMSE(bruteForcePredictTest_y,test_y)
+                    #print "MSE for 4 features Testing(LR) :", MSETest
+'''
+#print BruteForceDict
+
+bruteForceFeatureSelected=min(BruteForceDict.iteritems(), key=lambda k: k[1])[0]
+bruteForceTrainValue=min(BruteForceDict.iteritems(), key=lambda k: k[1])[1]
+bruteForceTrain_x=train_x[:,bruteForceFeatureSelected]
+bruteForceTrain_x_bias=np.insert(bruteForceTrain_x,0,1,axis=1)
+bruteForceTest_x=test_x[:,bruteForceFeatureSelected]
+bruteForceTest_x_bias=np.insert(bruteForceTest_x,0,1,axis=1)
+
+#computing W-lms =inv(xT * x) * xT * y
+weightsTrain=getWeights(bruteForceTrain_x_bias,train_y)
+
+#print "MSE for 4 features Training(LR):", MSETrain
+
+bruteForcePredictTest_y=bruteForceTest_x_bias.dot(weightsTrain)
+MSETest=getMSE(bruteForcePredictTest_y,test_y)
+print "\n\n********* Brute Force *********\n\nMSE for Brute Force features ",[group+1 for group in bruteForceFeatureSelected],"Training (LR):",bruteForceTrainValue,"Testing(LR) :", MSETest
+
+
+
 
 #******************* Polynomial Feature Expansion *******************#
-polyFeatures=np.zeros(shape=(433,105))
+print "\n******************* Polynomial Feature Expansion *******************\n"
+extraPolyFeaturesTrain=np.zeros(shape=(433,91))
+extraPolyFeaturesTest=np.zeros(shape=(len(test_x),91))
 
-polyFeatures=train_x
+l=0
 
-k=13
 for i in range(13):
-    for j in range(13):
-        if (j>i):
-            #polyFeatures[k]=polyFeatures[:,i] * polyFeatures[:,j]
-            k=k+1;
+    for j in range(i,13):
+        extraPolyFeaturesTrain[:,l]=np.multiply(train_x[:,i],train_x[:,j])
+        extraPolyFeaturesTest[:,l]=np.multiply(test_x[:,i],test_x[:,j])
+        l=l+1;
+print len(extraPolyFeaturesTest)
 
-print k
-print len(polyFeatures),len(polyFeatures[0])
+mean=np.zeros(shape=(len(extraPolyFeaturesTrain[0])));
+std=np.zeros(shape=(len(extraPolyFeaturesTrain[0])));
+for i in range(len(extraPolyFeaturesTrain[1])):
+    mean[i]=extraPolyFeaturesTrain[:,i].mean();
+    std[i]=extraPolyFeaturesTrain[:,i].std();
+
+normalize(extraPolyFeaturesTrain,mean,std)
+
+mean=np.zeros(shape=(len(extraPolyFeaturesTest[0])));
+std=np.zeros(shape=(len(extraPolyFeaturesTest[0])));
+
+for i in range(len(extraPolyFeaturesTest[1])):
+    mean[i]=extraPolyFeaturesTest[:,i].mean();
+    std[i]=extraPolyFeaturesTest[:,i].std();
+normalize(extraPolyFeaturesTest,mean,std)
+
+#print len(extraPolyFeaturesTrain),len(extraPolyFeaturesTrain[0]),len(extraPolyFeaturesTest),len(extraPolyFeaturesTest[0]),
+train_x=np.hstack([train_x,extraPolyFeaturesTrain])
+test_x=np.hstack([test_x,extraPolyFeaturesTest])
+
+#print len(train_x),len(train_x[0]),len(test_x),len(test_x[0])
+
+print len(test_x[0])
+train_x_bias=np.insert(train_x,0,1,axis=1)
+test_x_bias=np.insert(test_x,0,1,axis=1)
+
+print len(test_x[0]),len(train_x[0]),len(test_x_bias[0])
+#computing W-lms =inv(xT * x) * xT * y
+weightsTrain1=getWeights(train_x_bias,train_y)
+predictTrain_y1=train_x_bias.dot(weightsTrain1)
+MSETrain1=getMSE(predictTrain_y1,train_y)
+print "MSE for Training(LR):", MSETrain1
+predictTest_y1=test_x_bias.dot(weightsTrain1)
+MSETest1=getMSE(predictTest_y1,test_y)
+print "MSE for Testing(LR) :",MSETest1
