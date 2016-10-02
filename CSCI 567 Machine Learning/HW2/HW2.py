@@ -17,7 +17,7 @@ def getMSE(predict,actual):
 #Using Analytical method
 def getWeights(x,y):
     temp1=x.transpose().dot(x) # (xT * x)
-    temp2=np.linalg.inv(temp1) # Inv(xT * x)
+    temp2=np.linalg.pinv(temp1) # Inv(xT * x)
     temp3=temp2.dot(x.transpose()) # Inv(xT * x) * xT
     return temp3.dot(y); # Inv(xT * x) * xT * y
 
@@ -25,7 +25,7 @@ def getWeights(x,y):
 def getWeightsRidge(x,y,lambdas):
     regularization=lambdas * np.eye(np.size(x,1))
     temp1=x.transpose().dot(x) + regularization # (xT * x) + lambda||w||
-    temp2=np.linalg.inv(temp1) # Inv(xT * x)
+    temp2=np.linalg.pinv(temp1) # Inv(xT * x)
     temp3=temp2.dot(x.transpose()) # Inv(xT * x) * xT
     return temp3.dot(y); # Inv(xT * x) * xT * y
 
@@ -40,7 +40,6 @@ train_x=np.zeros(shape=(len(data)-len(test_x),13));
 test_y=np.zeros(shape=(len(data)/7+1,1));
 train_y=np.zeros(shape=(len(data)-len(test_y),1));
 
-print(data[0,13])
 k=0;l=0;
 for i in range(len(data)):
         #print i,i%7
@@ -74,6 +73,9 @@ normalize(train_x,mean,std);
 normalize(test_x,mean,std);
 
 
+#To be deletedlater on
+
+
 #Add 1 as a bias for w0 in train and test
 train_x_bias=np.insert(train_x,0,1,axis=1)
 test_x_bias=np.insert(test_x,0,1,axis=1)
@@ -99,25 +101,44 @@ for i in range(len(l)):
     print "MSE for Testing (Ridge Regressor lambda= ",l[i],"):", MSETest
 
 #Ridge with diff lambda values
-'''binRowNos=np.zeros(shape=(44,10))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+binRowNos=np.zeros(shape=(44,10))
 data_i=0;
-"""for i in range(len(binRowNos)):
+for i in range(len(binRowNos)):
     for j in range(10):
         if (data_i>=len(train_x)):
             binRowNos[i][j]=-999;
         else:
             binRowNos[i][j]=data_i;
         data_i=data_i+1;
-"""
-
-for j in range(10):
-    for i in range(len(binRowNos)):
-        if (j>=3 and i >= len(binRowNos)-1 ):
-            binRowNos[i][j]=-999;
-        else:
-            binRowNos[i][j]=data_i;
-            data_i=data_i+1;
-
+#for j in range(10):
+#    for i in range(len(binRowNos)):
+#        if (j>=3 and i >= len(binRowNos)-1 ):
+#            binRowNos[i][j]=-999;
+#        else:
+#            binRowNos[i][j]=data_i;
+#            data_i=data_i+1;
+#
 
 print binRowNos
 #exit(1)
@@ -172,32 +193,21 @@ while (tryLambda <= 10.0):
 
 #exit(1)
 
-tryLambda=0.0001
-incr=0;
-diffLambdaMSE=[];
-while (tryLambda <=10):
-    RidgeWeights=getWeightsRidge(train_x_bias,train_y,tryLambda);
-    predictTrain_y=train_x_bias.dot(RidgeWeights)
-    MSETrain=getMSE(predictTrain_y,train_y)
-    #print "MSE for Training(Ridge Regressor lambda= ",l[i],"):", MSETrain
-    predictTest_y=test_x_bias.dot(RidgeWeights)
-    MSETest=getMSE(predictTest_y,test_y)
-    diffLambdaMSE.append([incr,tryLambda,MSETrain[0],MSETest[0]])
-    incr=incr+1;
-    tryLambda=tryLambda+0.5
 
-print diffLambdaMSE[:][0];
-x=[]
-y=[]
-for i in range(len(diffLambdaMSE)):
-    x.append(diffLambdaMSE[i][0])
-    y.append(diffLambdaMSE[i][2])
-print x,y
-plt.scatter(x,y)
-'''
+
+
+
+
+
+
+
 
 
 # Section 3 Feature Selection
+
+
+
+
 #*******************      a      *******************#
 maxIdx=heapq.nlargest(4, range(len(PearsCorr)), abs(PearsCorr).take)
 featureTrain_x_a=train_x[:,maxIdx]
@@ -224,7 +234,15 @@ print "Testing LR MSE:",MSETest
 
 
 
+
+
+
+
 #*******************      b      *******************#
+
+
+
+
 print "\n*********Feature Selection b.*********\n"
 featuresSelectedTillNow=heapq.nlargest(1, range(len(PearsCorr)), abs(PearsCorr).take)
 
@@ -275,8 +293,6 @@ for i in range(3):
 
 
 
-#print AllFeaturesForResidualCorr
-#print dictCorr
 
 
 #******************* Brute Force *******************#
@@ -298,13 +314,6 @@ for i in range(len(train_x[0])):
                     weightsTrain=getWeights(bruteForceTrain_x_bias,train_y)
                     bruteForcePredictTrain_y=bruteForceTrain_x_bias.dot(weightsTrain)
                     BruteForceDict[keyFeature]=getMSE(bruteForcePredictTrain_y,train_y)[0]
-                    #print "MSE for 4 features Training(LR):", MSETrain
-
-'''                 bruteForcePredictTest_y=bruteForceTest_x.dot(weightsTrain)
-                    MSETest=getMSE(bruteForcePredictTest_y,test_y)
-                    #print "MSE for 4 features Testing(LR) :", MSETest
-'''
-#print BruteForceDict
 
 bruteForceFeatureSelected=min(BruteForceDict.iteritems(), key=lambda k: k[1])[0]
 bruteForceTrainValue=min(BruteForceDict.iteritems(), key=lambda k: k[1])[1]
@@ -315,18 +324,14 @@ bruteForceTest_x_bias=np.insert(bruteForceTest_x,0,1,axis=1)
 
 #computing W-lms =inv(xT * x) * xT * y
 weightsTrain=getWeights(bruteForceTrain_x_bias,train_y)
-
-#print "MSE for 4 features Training(LR):", MSETrain
-
 bruteForcePredictTest_y=bruteForceTest_x_bias.dot(weightsTrain)
 MSETest=getMSE(bruteForcePredictTest_y,test_y)
 print "\n\n********* Brute Force *********\n\nMSE for Brute Force features ",[group+1 for group in bruteForceFeatureSelected],"Training (LR):",bruteForceTrainValue,"Testing(LR) :", MSETest
 
 
 
-
 #******************* Polynomial Feature Expansion *******************#
-print "\n******************* Polynomial Feature Expansion *******************\n"
+print "\n\n******************* Polynomial Feature Expansion *******************\n"
 extraPolyFeaturesTrain=np.zeros(shape=(433,91))
 extraPolyFeaturesTest=np.zeros(shape=(len(test_x),91))
 
@@ -337,7 +342,6 @@ for i in range(13):
         extraPolyFeaturesTrain[:,l]=np.multiply(train_x[:,i],train_x[:,j])
         extraPolyFeaturesTest[:,l]=np.multiply(test_x[:,i],test_x[:,j])
         l=l+1;
-print len(extraPolyFeaturesTest)
 
 mean=np.zeros(shape=(len(extraPolyFeaturesTrain[0])));
 std=np.zeros(shape=(len(extraPolyFeaturesTrain[0])));
@@ -346,31 +350,19 @@ for i in range(len(extraPolyFeaturesTrain[1])):
     std[i]=extraPolyFeaturesTrain[:,i].std();
 
 normalize(extraPolyFeaturesTrain,mean,std)
-
-mean=np.zeros(shape=(len(extraPolyFeaturesTest[0])));
-std=np.zeros(shape=(len(extraPolyFeaturesTest[0])));
-
-for i in range(len(extraPolyFeaturesTest[1])):
-    mean[i]=extraPolyFeaturesTest[:,i].mean();
-    std[i]=extraPolyFeaturesTest[:,i].std();
 normalize(extraPolyFeaturesTest,mean,std)
 
-#print len(extraPolyFeaturesTrain),len(extraPolyFeaturesTrain[0]),len(extraPolyFeaturesTest),len(extraPolyFeaturesTest[0]),
-train_x=np.hstack([train_x,extraPolyFeaturesTrain])
-test_x=np.hstack([test_x,extraPolyFeaturesTest])
+Polytrain_x=np.hstack([train_x,extraPolyFeaturesTrain])
+Polytest_x=np.hstack([test_x,extraPolyFeaturesTest])
 
-#print len(train_x),len(train_x[0]),len(test_x),len(test_x[0])
-
-print len(test_x[0])
-train_x_bias=np.insert(train_x,0,1,axis=1)
-test_x_bias=np.insert(test_x,0,1,axis=1)
-
-print len(test_x[0]),len(train_x[0]),len(test_x_bias[0])
+Polytrain_x_bias=np.insert(Polytrain_x,0,1,axis=1)
+Polytest_x_bias=np.insert(Polytest_x,0,1,axis=1)
 #computing W-lms =inv(xT * x) * xT * y
-weightsTrain1=getWeights(train_x_bias,train_y)
-predictTrain_y1=train_x_bias.dot(weightsTrain1)
-MSETrain1=getMSE(predictTrain_y1,train_y)
-print "MSE for Training(LR):", MSETrain1
-predictTest_y1=test_x_bias.dot(weightsTrain1)
-MSETest1=getMSE(predictTest_y1,test_y)
-print "MSE for Testing(LR) :",MSETest1
+PolyWeightsTrain=getWeights(Polytrain_x_bias,train_y)
+PolyPredictTrain_y=Polytrain_x_bias.dot(PolyWeightsTrain)
+PolyMSETrain=getMSE(PolyPredictTrain_y,train_y)
+print "MSE for Training(LR):", PolyMSETrain
+
+PolyPredictTest_y=Polytest_x_bias.dot(PolyWeightsTrain)
+PolyMSETest=getMSE(PolyPredictTest_y,test_y)
+print "MSE for Testing(LR) :", PolyMSETest
