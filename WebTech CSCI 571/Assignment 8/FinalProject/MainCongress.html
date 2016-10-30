@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Bootstrap Example</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+   
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+
+    <link rel="stylesheet" href="CSS/font-awesome.min.css">
+
+    <script type="text/javascript" src="JS/dirPagination.js"></script>
+
+    <script type="text/javascript" src="JS/MainCongress.js"></script>
+
+    <link rel="stylesheet" href="CSS/MainCongress.css">
+
+ 
+</head>
+<style>
+    
+
+</style>
+
+<body>
+    
+    <div class="container-fluid">
+        <div class="row navbar navbar-default" >
+            <div class="col-xs-1 vcenter">
+                <button class="navbar collapse in" data-toggle="collapse" id="menu-toggle-2"> 
+                    <span><i class="fa fa-bars"></i></span>
+                </button>
+            </div>
+            <div class="col-xs-11">
+                <p class="text-center"><img src="http://cs-server.usc.edu:45678/hw/hw8/images/logo.png"><span class="h3">Congress API</span></p>
+            </div>
+        </div>
+    </div>
+    
+    <div id="canvas">
+            <div id="mySidenav">
+                <ul class="sidebar-nav nav-stacked nav-default nav-pills" id="menu">
+                <li><a href="#"><i class="fa fa-user"></i> Legislators</a></li>
+                <li><a href="#"><i class="fa fa-file-o"></i> Bills</a></li>
+                <li><a href="#"><i class="fa fa-sign-in"></i> Committees</a></li>
+                <li><a href="#"><i class="fa fa-star"></i> Favorites</a></li>
+            </div>
+            <div id="output" ng-app="myApp" ng-controller="Legislator">
+                <div id="tabName">
+                <h3>{{SelectedName}}</h3>
+                </div>
+
+                <div class="panel-group panel-default">
+                        <div class="panel-heading">
+                            <!-- Nav tabs -->
+                            <ul class="nav nav-tabs" role="tablist">
+                                <li role="presentation" class="active">
+                                    <a href="#bystate" aria-controls="bystate" role="tab" data-toggle="tab">By State</a>
+                                </li>
+                                <li role="presentation">
+                                    <a href="#byhouse" aria-controls="house" role="tab" data-toggle="tab">House</a>
+                                </li>
+                                <li role="presentation">
+                                    <a href="#bysenate" aria-controls="senate" role="tab" data-toggle="tab">Senate</a>
+                                </li>
+                            </ul>
+                        </div>
+
+                    <!-- Require this div to add all the remaining divs in a single div for tab functionality -->
+                    
+                    <div class="tab-content clearfix">
+                        <!-- Template(view) for Legisator by State -->
+                        <div role="tabpanel"  class="tab-pane  active" id="bystate">
+                            <div class="panel panel-default panel-body">
+                                    <form class="form-inline">
+                                        <select ng-model="stateSelector" class="form-control" >
+                                            <option value=""></option>
+                                            <option value="Virginia">Virginia</option>
+                                            <option value="Washington">Washington</option>
+                                            <option value="Ohio">Ohio</option>
+                                        </select>
+                                        <table class="table">
+                                        <thead>
+                                              <tr>
+                                                <th>Party</th>
+                                                <th>Name</th>
+                                                <th>Chamber</th>
+                                                <th>District</th>
+                                                <th>State</th>
+                                                <th></th>
+                                              </tr>
+                                        </thead>
+                                            <tbody>
+                                                <tr dir-paginate="x in parsedJson | filter:{state_name: stateSelector} | orderBy : ['state_name','last_name'] | itemsPerPage: 10">
+                                                    <td><img class="partyIcon" ng-src="{{ x.party == 'R' ? 'http://cs-server.usc.edu:45678/hw/hw8/images/r.png' : x.party == 'D' ? 'http://cs-server.usc.edu:45678/hw/hw8/images/d.png' : 'http://independentamericanparty.org/wp-content/themes/v/images/logo-american-heritage-academy.png'}}"></img></td>
+                                                    
+                                                    <td>{{ x.last_name }}, {{ x.first_name}}</td>
+                                                    
+                                                    <td><img class="partyIcon" ng-src="{{x.chamber == 'senate' ? 'http://cs-server.usc.edu:45678/hw/hw8/images/s.svg' : x.chamber == 'house' ? 'http://cs-server.usc.edu:45678/hw/hw8/images/h.png' : '' }}">{{ x.chamber == 'house' ? 'House' : x.chamber == 'senate' ? 'Senate' : 'NA'}}</td>
+                                                    
+                                                    <td>{{ x.chamber == 'senate' ? 'NA' : 'District ' + x.district  }}</td>
+                                                    <td>{{ x.state_name }}</td>
+                                                    <td><button type="button" class="btn btn-primary">View Details</button></td>
+                                                </tr>
+
+                                            </tbody>
+                                          </table>
+                                    </form>
+                        
+                    
+                                        <div class="text-center">
+                                            <dir-pagination-controls boundary-links="true" on-page-change="pageChangeHandler(newPageNumber)" template-url="dirPagination.tpl.html"></dir-pagination-controls>
+                                        </div>
+                            </div>
+                        </div>
+                        <!-- END OF Template(view) for Legisator by State -->
+
+
+                        <!-- Template(view) for Legisator by House -->
+                        <div role="tabpanel"  class="tab-pane" id="byhouse">
+                            <div  class="panel panel-default panel-body">
+                                    <form class="form-inline">
+                                        <input ng-model="stateFilter" class="form-control" id="stateFilter" name="stateFilter" type="text">
+                                        
+                                        <table class="table">
+                                        <thead>
+                                              <tr>
+                                                <th>Party</th>
+                                                <th>Name</th>
+                                                <th>Chamber</th>
+                                                <th>District</th>
+                                                <th>State</th>
+                                                <th></th>
+                                              </tr>
+                                        </thead>
+                                            <tbody>
+                                                <tr dir-paginate="x in parsedJson |  filter: {chamber:valueHouse} | filter: stateFilter | orderBy : ['state_name','last_name'] | itemsPerPage: 10">
+                                                    <td><img class="partyIcon" ng-src="{{ x.party == 'R' ? 'http://cs-server.usc.edu:45678/hw/hw8/images/r.png' : x.party == 'D' ? 'http://cs-server.usc.edu:45678/hw/hw8/images/d.png' : 'http://independentamericanparty.org/wp-content/themes/v/images/logo-american-heritage-academy.png'}}"></img></td>
+                                                    
+                                                    <td>{{ x.last_name }}, {{ x.first_name}}</td>
+                                                    
+                                                    <td><img class="partyIcon" ng-src="{{x.chamber == 'senate' ? 'http://cs-server.usc.edu:45678/hw/hw8/images/s.svg' : x.chamber == 'house' ? 'http://cs-server.usc.edu:45678/hw/hw8/images/h.png' : '' }}">{{ x.chamber == 'house' ? 'House' : x.chamber == 'senate' ? 'Senate' : 'NA'}}</td>
+                                                    
+                                                    <td>{{ x.chamber == 'senate' ? 'NA' : 'District ' + x.district  }}</td>
+                                                    <td>{{ x.state_name }}</td>
+                                                    <td><button type="button" class="btn btn-primary">View Details</button></td>
+                                                </tr>
+
+                                            </tbody>
+                                          </table>
+                                    </form>
+                        
+                    
+                                        <div class="text-center">
+                                            <dir-pagination-controls boundary-links="true" on-page-change="pageChangeHandler(newPageNumber)" template-url="dirPagination.tpl.html"></dir-pagination-controls>
+                                        </div>
+                    
+                            </div>
+                        </div>
+                        <!-- END OF Template(view) for Legisator by House -->
+
+
+                        
+                        <!-- Template(view) for Legisator by House -->
+                        <div role="tabpanel"  class="tab-pane" id="bysenate">
+                            <div  class="panel panel-default panel-body">
+                                    <form class="form-inline">
+                                        <input ng-model="stateFilter" class="form-control" id="stateFilter" name="stateFilter" type="text">
+                                        
+                                        <table class="table">
+                                        <thead>
+                                              <tr>
+                                                <th>Party</th>
+                                                <th>Name</th>
+                                                <th>Chamber</th>
+                                                <th>State</th>
+                                                <th></th>
+                                              </tr>
+                                        </thead>
+                                            <tbody>
+                                                <tr dir-paginate="x in parsedJson |  filter: {chamber:valueSenate} | filter: stateFilter | orderBy : ['state_name','last_name'] | itemsPerPage: 10">
+                                                    <td><img class="partyIcon" ng-src="{{ x.party == 'R' ? 'http://cs-server.usc.edu:45678/hw/hw8/images/r.png' : x.party == 'D' ? 'http://cs-server.usc.edu:45678/hw/hw8/images/d.png' : 'http://independentamericanparty.org/wp-content/themes/v/images/logo-american-heritage-academy.png'}}"></img></td>
+                                                    
+                                                    <td>{{ x.last_name }}, {{ x.first_name}}</td>
+                                                    
+                                                    <td><img class="partyIcon" ng-src="{{x.chamber == 'senate' ? 'http://cs-server.usc.edu:45678/hw/hw8/images/s.svg' : x.chamber == 'house' ? 'http://cs-server.usc.edu:45678/hw/hw8/images/h.png' : '' }}">{{ x.chamber == 'house' ? 'House' : x.chamber == 'senate' ? 'Senate' : 'NA'}}</td>
+                                                    
+                                                    <td>{{ x.state_name }}</td>
+                                                    <td><button type="button" class="btn btn-primary">View Details</button></td>
+                                                </tr>
+
+                                            </tbody>
+                                          </table>
+                                    </form>
+                        
+                                        <div class="text-center">
+                                            <dir-pagination-controls boundary-links="true" on-page-change="pageChangeHandler(newPageNumber)" template-url="dirPagination.tpl.html"></dir-pagination-controls>
+                                        </div>
+                            </div>
+                        </div>
+                        <!-- END OF Template(view) for Legisator by House -->
+                        
+                        
+                    </div>
+                    <!-- End of divs for all tabs -->
+
+                    
+                </div>
+            </div>
+            
+    </div>
+
+</body>
+</html>
