@@ -28,7 +28,7 @@
 
 </style>
 
-<body>
+<body ng-app="myApp">
     
     <div class="container-fluid">
         <div class="row navbar navbar-default" >
@@ -42,18 +42,29 @@
             </div>
         </div>
     </div>
-    
+
     <div id="canvas">
             <div id="mySidenav">
-                <ul class="sidebar-nav nav-stacked nav-default nav-pills" id="menu">
-                <li><a href="#"><i class="fa fa-user"></i> Legislators</a></li>
-                <li><a href="#"><i class="fa fa-file-o"></i> Bills</a></li>
-                <li><a href="#"><i class="fa fa-sign-in"></i> Committees</a></li>
-                <li><a href="#"><i class="fa fa-star"></i> Favorites</a></li>
+                <ul class="sidebar-nav nav-stacked nav-default" id="menu">
+                    <li role="presentation" class="active">
+                        <a href="#output" class="active" aria-controls="#output" role="tab" data-toggle="tab"><i class="fa fa-user"></i> Legislators</a>
+                    </li>
+                    <li role="presentation">
+                        <a href="#outputBill" aria-controls="#outputBill" role="tab" data-toggle="tab"><i class="fa fa-file-o"></i> Bills</a>
+                    </li>
+                    <li role="presentation">
+                        <a href="#outputCommittee" aria-controls="#outputCommittee" role="tab" data-toggle="tab"><i class="fa fa-sign-in"></i> Committees</a>
+                    </li>
+                    <li role="presentation">
+                        <a href="#FavoriteTab" aria-controls="#FavoriteTab" role="tab" data-toggle="tab" onclick="callJSFavClick()"><i class="fa fa-star"></i> Favorites</a>
+                    </li>
+                </ul>
             </div>
-            <div id="output" ng-app="myApp" ng-controller="Legislator">
+            <div id = "panelOut" class="container-fluid xyz tab-content">
+            <!-- <div id="output" ng-app="myApp" ng-controller="Legislator"> -->
+            <div id="output"  ng-controller="Legislator"  role="tabpanel" class="active tab-pane" >
                 <div id="tabName">
-                <h3>{{SelectedName}}</h3>
+                <h3>Legislators</h3>
                 </div>
                 <div class="carousel slide" id="legislator_carousal" data-interval="false">
                     <div class="carousel-inner" role="listbox">
@@ -76,18 +87,18 @@
 
                     <!-- Require this div to add all the remaining divs in a single div for tab functionality -->
                     
-                    <div class="tab-content clearfix">
+                    <div class="tab-content clearfix whitebackground">
                         <!-- Template(view) for Legisator by State -->
                         <div role="tabpanel"  class="tab-pane  active" id="bystate">
                             <div class="panel panel-default panel-body">
                                     <form class="form-inline">
-                                        <div class="row">
+                                        <div class="row rowHeader">
                                             <div class="col-xs-3">
                                                 <p class="h3">Legislator By State</p>
                                             </div>
                                             <div class="col-xs-3 col-xs-offset-6">
-                                                <select ng-model="stateSelector" class="form-control h3">
-                                                <option value=""></option>
+                                                <select ng-model="stateSelector" class="form-control h3" >
+                                                <option value="" class="active">All States</option>
                                                 <option value="Virginia">Virginia</option>
                                                 <option value="Washington">Washington</option>
                                                 <option value="Ohio">Ohio</option>
@@ -106,7 +117,7 @@
                                               </tr>
                                         </thead>
                                             <tbody>
-                                                <tr dir-paginate="x in parsedJson | filter:{state_name: stateSelector} | orderBy : ['state_name','last_name'] | itemsPerPage: 10">
+                                                <tr pagination-id="byStatePage" dir-paginate="x in parsedJson | filter:{state_name: stateSelector} | orderBy : ['state_name','last_name'] | itemsPerPage: 10">
                                                     <td><img class="partyIcon" ng-src="{{ x.party == 'R' ? 'http://cs-server.usc.edu:45678/hw/hw8/images/r.png' : x.party == 'D' ? 'http://cs-server.usc.edu:45678/hw/hw8/images/d.png' : 'http://independentamericanparty.org/wp-content/themes/v/images/logo-american-heritage-academy.png'}}"></img></td>
                                                     
                                                     <td>{{ x.last_name }}, {{ x.first_name}}</td>
@@ -117,7 +128,7 @@
                                                     <td>{{ x.state_name }}</td>
                                                     
 
-                                                    <td><button ng-click="getLegislatorDetails(x.bioguide_id)" type="button" class="btn btn-primary" href="#legislator_carousal">View Details</button> 
+                                                    <td><button ng-click="getLegislatorDetails(x.bioguide_id)" type="button" class="btn btn-primary" href="#legislator_carousal">View Details</button> </td>
                                                 </tr>
 
                                             </tbody>
@@ -126,11 +137,110 @@
                         
                     
                                         <div class="text-center">
-                                            <dir-pagination-controls boundary-links="true" on-page-change="pageChangeHandler(newPageNumber)" template-url="dirPagination.tpl.html"></dir-pagination-controls>
+                                            <dir-pagination-controls pagination-id="byStatePage" boundary-links="true" on-page-change="pageChangeHandler(newPageNumber)" template-url="dirPagination.tpl.html"></dir-pagination-controls>
                                         </div>
                             </div>
                         </div>
                         <!-- END OF Template(view) for Legisator by State -->
+                        <!-- Template(view) for Legisator by House -->
+                        <div role="tabpanel"  class="tab-pane" id="byhouse">
+                            <div  class="panel panel-default panel-body">
+                                    <form class="form-inline">
+                                        <div class="row rowHeader">
+                                            <div class="col-xs-3">
+                                                <p class="h3">Legislator By House</p>
+                                            </div>
+                                            <div class="col-xs-3 col-xs-offset-6">
+                                                <input  ng-model="stateFilter" class="form-control h3" id="stateFilter" name="stateFilter" type="text" placeholder="Search">
+                                            </div>
+                                        </div>
+
+                                        
+                                        <table class="table">
+                                        <thead>
+                                              <tr>
+                                                <th>Party</th>
+                                                <th>Name</th>
+                                                <th>Chamber</th>
+                                                <th>District</th>
+                                                <th>State</th>
+                                                <th></th>
+                                              </tr>
+                                        </thead>
+                                            <tbody>
+                                                <tr pagination-id="byHousePage" dir-paginate="x in parsedJson |  filter: {chamber:valueHouse} | filter: stateFilter | orderBy : ['state_name','last_name'] | itemsPerPage: 10">
+                                                    <td><img class="partyIcon" ng-src="{{ x.party == 'R' ? 'http://cs-server.usc.edu:45678/hw/hw8/images/r.png' : x.party == 'D' ? 'http://cs-server.usc.edu:45678/hw/hw8/images/d.png' : 'http://independentamericanparty.org/wp-content/themes/v/images/logo-american-heritage-academy.png'}}"></img></td>
+                                                    
+                                                    <td>{{ x.last_name }}, {{ x.first_name}}</td>
+                                                    
+                                                    <td><img class="partyIcon" ng-src="{{x.chamber == 'senate' ? 'http://cs-server.usc.edu:45678/hw/hw8/images/s.svg' : x.chamber == 'house' ? 'http://cs-server.usc.edu:45678/hw/hw8/images/h.png' : '' }}">{{ x.chamber == 'house' ? 'House' : x.chamber == 'senate' ? 'Senate' : 'NA'}}</td>
+                                                    
+                                                    <td>{{ x.chamber == 'senate' ? 'NA' : 'District ' + x.district  }}</td>
+                                                    <td>{{ x.state_name }}</td>
+                                                    <td><button type="button" class="btn btn-primary" ng-click="getLegislatorDetails(x.bioguide_id)">View Details</button></td>
+                                                </tr>
+
+                                            </tbody>
+                                          </table>
+                                    </form>
+                        
+                    
+                                        <div class="text-center">
+                                            <dir-pagination-controls pagination-id="byHousePage" boundary-links="true" on-page-change="pageChangeHandler(newPageNumber)" template-url="dirPagination.tpl.html"></dir-pagination-controls>
+                                        </div>
+                    
+                            </div>
+                        </div>
+                        <!-- END OF Template(view) for Legisator by House -->
+
+
+                        
+                        <!-- Template(view) for Legisator by House -->
+                        <div role="tabpanel"  class="tab-pane" id="bysenate">
+                            <div  class="panel panel-default panel-body">
+                                    <form class="form-inline">
+                                        <div class="row rowHeader">
+                                            <div class="col-xs-3">
+                                                <p class="h3">Legislator By Senate</p>
+                                            </div>
+                                            <div class="col-xs-3 col-xs-offset-6">
+                                                <input ng-model="stateFilterSenate" class="form-control h3" id="stateFilterSenate" name="stateFilterSenate" type="text" placeholder="Search">
+                                            </div>
+                                        </div>
+
+                                        <table class="table">
+                                        <thead>
+                                              <tr>
+                                                <th>Party</th>
+                                                <th>Name</th>
+                                                <th>Chamber</th>
+                                                <th>State</th>
+                                                <th></th>
+                                              </tr>
+                                        </thead>
+                                            <tbody>
+                                                <tr pagination-id="bySenatePage" dir-paginate="x in parsedJson |  filter: {chamber:valueSenate} | filter: stateFilterSenate | orderBy : ['state_name','last_name'] | itemsPerPage: 10">
+                                                    <td><img class="partyIcon" ng-src="{{ x.party == 'R' ? 'http://cs-server.usc.edu:45678/hw/hw8/images/r.png' : x.party == 'D' ? 'http://cs-server.usc.edu:45678/hw/hw8/images/d.png' : 'http://independentamericanparty.org/wp-content/themes/v/images/logo-american-heritage-academy.png'}}"></img></td>
+                                                    
+                                                    <td>{{ x.last_name }}, {{ x.first_name}}</td>
+                                                    
+                                                    <td><img class="partyIcon" ng-src="{{x.chamber == 'senate' ? 'http://cs-server.usc.edu:45678/hw/hw8/images/s.svg' : x.chamber == 'house' ? 'http://cs-server.usc.edu:45678/hw/hw8/images/h.png' : '' }}">{{ x.chamber == 'house' ? 'House' : x.chamber == 'senate' ? 'Senate' : 'NA'}}</td>
+                                                    
+                                                    <td>{{ x.state_name }}</td>
+                                                    <td><button type="button" class="btn btn-primary" ng-click="getLegislatorDetails(x.bioguide_id)">View Details</button></td>
+                                                </tr>
+
+                                            </tbody>
+                                          </table>
+                                    </form>
+                        
+                                        <div class="text-center">
+                                            <dir-pagination-controls pagination-id="bySenatePage" boundary-links="true" on-page-change="pageChangeHandler(newPageNumber)" template-url="dirPagination.tpl.html"></dir-pagination-controls>
+                                        </div>
+                            </div>
+                        </div>
+                        <!-- END OF Template(view) for Legisator by House -->
+                        
 
 
                         
@@ -147,29 +257,39 @@
                 <!-- Carousel Legislator Details Page -->
                 <div class="item" id="LegislatorDetails">
                 
-                    <div class="panel-group panel-default">
+                    <div class="panel-group panel-default ">
                     <!-- tab-content clearfix -->
-                        <div class="tab-content clearfix">
+                        <div class="tab-content clearfix whitebackground">
                         <!-- Template(view) for Legisator Detail -->
                             <div role="tabpanel"  class="tab-pane  active">
                                 <div class="panel panel-default panel-body">
                                     <div class="row">
-                                    <i ng-click="slidePrev()" class="fa fa-chevron-left">Details</i>
+                                        <div class="col-xs-1">
+                                            <button id "legilatorsDetailsBtn" ng-click="slidePrev()" class="btn btn-default item1" aria-label="Left Align">
+                                                <i class="fa fa-chevron-left"></i>
+                                            </button>
+                                            Details
+                                        </div>
+                                        <div class="col-xs-1 col-xs-offset-10">
+                                            <button id="legislatorFavBtn" ng-click="addToLocalStorage()" class="btn btn-default item1 " aria-label="Left Right">
+                                            <i ng-class="legIdArr[bioguide] ? 'fa fa-star-o icon-clicked' : 'fa fa-star-o' "></i>
+                                            </button>
+                                        </div>
                                     </div>
                                     <div class="row"> 
                                     
                                         <div class="col-xs-6">                                            
-                                            <div class="col-xs-3">
-                                                <img class="img-responsive" ng-src="{{bioguideImg}}"><img>
+                                            <div class="col-xs-4 ">
+                                                <img class="img-responsive col-xs-3 col-xs-offset-1" ng-src="{{bioguideImg}}" style="width:180px"><img>
                                             </div>
-                                            <div class="col-xs-3">
+                                            <div class="col-xs-offset-2 col-xs-6">
                                                 <table class="table">
                                                     <tbody>
                                                         <tr>
                                                             <td>{{ LegisDispName }}</td>
                                                         </tr>
                                                         <tr>
-                                                            <td>{{ LegisDispEmail }}</td>
+                                                            <td><a ng-href="mailto:{{LegisDispEmail}}">{{ LegisDispEmail }}</a></td>
                                                         </tr>
                                                         <tr>
                                                             <td>{{ LegisDispChamber }}</td>
@@ -177,7 +297,7 @@
                                                         <tr>
                                                             <td>{{ LegisDispPhone }}</td>
                                                         </tr>
-                                                        <tr>
+                                                            <tr>
                                                             <td><img class="partyIcon" ng-src="{{LegisDispPartyImg}}">{{ LegisDispPartyNm }}</td>
                                                         </tr>
                                                             
@@ -189,6 +309,7 @@
                                         </div>
                                         
                                         <div class="col-xs-6">
+                                        <p>Committees</p>
                                         <table class="table">
                                         <thead>
                                               <tr>
@@ -249,7 +370,7 @@
                                                     </tr>
                                                     <tr>
                                                         <th> Fax </th>
-                                                        <td>{{ LegisDispFax }}</td>
+                                                        <td><a>{{ LegisDispFax }}</a></td>
                                                     </tr>
                                                     <tr>
                                                         <th> Birthday </th>
@@ -276,6 +397,7 @@
                                         
                                         
                                         <div class="col-xs-6">
+                                        <p>Bills</p>
                                         <table class="table">
                                         <thead>
                                               <tr>
@@ -328,6 +450,745 @@
                 </div>
                 <!-- End of Carousel inner with role class -->
             </div>
+            
+            <div id="outputBill"  ng-controller="Bills"  role="tabpanel" class="tab-pane" >
+                <div id="tabName">
+                <h3>Bills</h3>
+                </div>
+                <div class="carousel slide" id="bill_carousal" data-interval="false">
+                    <div class="carousel-inner" role="listbox">
+                        <div class="item active">
+                        <div class="panel-group panel-default">
+                        <div class="panel-heading">
+                            <!-- Nav tabs -->
+                            <ul class="nav nav-tabs" role="tablist">
+                                <li role="presentation" class="active">
+                                    <a href="#byActiveBills" aria-controls="byActiveBills" role="tab" data-toggle="tab">Active Bills</a>
+                                </li>
+                                <li role="presentation">
+                                    <a href="#byNewBills" aria-controls="byNewBills" role="tab" data-toggle="tab">New Bills</a>
+                                </li>
+                            </ul>
+                        </div>
+
+                    <!-- Require this div to add all the remaining divs in a single div for tab functionality -->
+                    
+                    <div class="tab-content clearfix whitebackground">
+                        <!-- Template(view) for Legisator by State -->
+                        <div role="tabpanel"  class="tab-pane active" id="byActiveBills">
+                            <div class="panel panel-default panel-body">
+                                    <form class="form-inline">
+                                        
+                                        <div class="row rowHeader">
+                                            <div class="col-xs-3">
+                                                <p class="h3">Active Bills</p>
+                                            </div>
+                                            <div class="col-xs-3 col-xs-offset-6">
+                                                <input ng-model="ActvieFilter" class="form-control h3" id="ActvieFilter" name="ActvieFilter" type="text" placeholder="Search">
+                                            </div>
+                                        </div>
+                                        
+                                        <table class="table">
+                                        <thead>
+                                              <tr>
+                                                <th>Bill Id</th>
+                                                <th>Bill Type</th>
+                                                <th>Title</th>
+                                                <th>Chamber</th>
+                                                <th>Introduced On</th>
+                                                <th>Sponsor</th>
+                                                <th></th>
+                                              </tr>
+                                        </thead>
+                                            <tbody>
+                                                <tr pagination-id="byActivePage" dir-paginate="x in parsedJsonBills | filter:{history:{active:true}}  | filter:ActiveFilter | itemsPerPage: 10">
+                                                    <td>{{x.bill_id.toUpperCase()}}</td>
+                                                    <td>{{x.bill_type.toUpperCase()}}</td>
+                                                    <td>{{x.official_title }}</td>
+                                                    <td>{{x.chamber.charAt(0).toUpperCase()+x.chamber.substr(1)}}</td>
+                                                    <td>{{x.introduced_on | date : "MMM d,yyyy"}}</td>
+                                                    <td>{{x.sponsor.title}}.  {{x.sponsor.last_name}}, {{x.sponsor.first_name}}</td>
+                                                    <td><button ng-click="getBillsDetails(x.bill_id)" type="button" class="btn btn-primary" href="#bill_carousal">View Details</button> </td>
+                                                </tr>
+
+                                            </tbody>
+                                          </table>
+                                    </form>
+                                        <div class="text-center">
+                                            <dir-pagination-controls pagination-id="byActivePage" boundary-links="true" on-page-change="pageChangeHandler(newPageNumber)" template-url="dirPagination.tpl.html"></dir-pagination-controls>
+                                        </div>
+
+                    
+                            </div>
+                        </div>
+                        <!-- END OF Template(view) for Legisator by State -->
+
+                        
+                        
+                        <div role="tabpanel"  class="tab-pane" id="byNewBills">
+                            <div class="panel panel-default panel-body">
+                                    <form class="form-inline">
+                                        
+                                        <div class="row rowHeader">
+                                            <div class="col-xs-3">
+                                                <p class="h3">New Bills</p>
+                                            </div>
+                                            <div class="col-xs-3 col-xs-offset-6">
+                                                <input ng-model="NewFilter" class="form-control h3" id="NewFilter" name="NewFilter" type="text"  placeholder="Search">
+                                            </div>
+                                        </div>
+                                        
+                                        <table class="table">
+                                        <thead>
+                                              <tr>
+                                                <th>Bill Id</th>
+                                                <th>Bill Type</th>
+                                                <th>Title</th>
+                                                <th>Chamber</th>
+                                                <th>Introduced On</th>
+                                                <th>Sponsor</th>
+                                                <th></th>
+                                              </tr>
+                                        </thead>
+                                            <tbody>
+                                                <tr pagination-id="byNewPage" dir-paginate="x in parsedJsonBills | filter:{history:{active:false}} | filter: NewFilter | itemsPerPage: 10">
+                                                    <td>{{x.bill_id.toUpperCase()}}</td>
+                                                    <td>{{x.bill_type.toUpperCase()}}</td>
+                                                    <td>{{x.official_title }}</td>
+                                                    <td>{{x.chamber.charAt(0).toUpperCase()+x.chamber.substr(1)}}</td>
+                                                    <td>{{x.introduced_on | date : "MMM d,yyyy"}}</td>
+                                                    <td>{{x.sponsor.title}}.  {{x.sponsor.last_name}}, {{x.sponsor.first_name}}</td>
+                                                    <td><button ng-click="getBillsDetails(x.bill_id)" type="button" class="btn btn-primary" href="#bill_carousal">View Details</button> </td>
+                                                </tr>
+
+                                            </tbody>
+                                          </table>
+                                    </form>
+                                        <div class="text-center">
+                                            <dir-pagination-controls pagination-id="byNewPage" boundary-links="true" on-page-change="pageChangeHandler(newPageNumber)" template-url="dirPagination.tpl.html"></dir-pagination-controls>
+                                        </div>
+                    
+                            </div>
+                        </div>
+
+
+                        
+
+                        
+                    </div>
+                    <!-- End of divs for all tabs -->
+
+                    
+                </div>
+                <!-- End of panel-group class -->
+                
+                </div>
+                <!-- End of class active for carousel-->
+                <div class="item" id="BillDetails">
+                
+                    <div class="panel-group panel-default">
+                    <!-- tab-content clearfix -->
+                        <div class="tab-content clearfix whitebackground">
+                        <!-- Template(view) for Legisator Detail -->
+                            <div role="tabpanel"  class="tab-pane  active">
+                                <div class="panel panel-default panel-body">
+
+                                    
+                                    <div class="row">
+                                        <div class="col-xs-1">
+                                            <button id "billDetailsBtn" ng-click="slidePrevBill()" class="btn btn-default item1" aria-label="Left Align">
+                                                <i class="fa fa-chevron-left"></i>
+                                            </button>
+                                            Details
+                                        </div>
+                                        <div class="col-xs-1 col-xs-offset-10">
+                                            <button id="billFavBtn" ng-click="addToLocalStorage()" class="btn btn-default item1 " aria-label="Right Align">
+                                                <i ng-class="billIdArr[bill_id] ? 'fa fa-star-o icon-clicked' : 'fa fa-star-o' "></i>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    
+                                        <div class="col-xs-6">                                            
+                                            <table class="table">
+                                                    <tbody>
+                                                        <tr>
+                                                            <th> Bill ID </th>
+                                                            <td>{{ BillDispID }}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th> Title </th>
+                                                            <td>{{ BillDispTitle }}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th> Bill Type </th>
+                                                            <td>{{ BillDispType }}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th> Sponsor </th>
+                                                            <td>{{ BillDispSponsor }}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th> Chamber </th>
+                                                            <td>{{ BillDispChamber }}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th> Status </th>
+                                                            <td>{{ BillDispStatus }}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th> Introduced On </th>
+                                                            <td>{{ BillDispIntro | date : "MMM d,yyyy" }}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th> Congress URL </th>
+                                                            <td><a ng-href="{{ BillDispCURI }}" target="_blank">Link</a></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th> Version Status </th>
+                                                            <td>{{ BillDispVer }}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th> Bill URL </th>
+                                                            <td><a ng-href="{{ BillDispBURI }}" target="_blank">Link</a></td>
+                                                        </tr>
+                                                    </tbody>
+                                            </table>
+                                        </div>
+                                        
+                                        <div class="col-xs-6">
+                                            <object  data="{{BillDispBURI}}" style="width: 500px; height: 500px;"></object>
+                                        </div>
+                                    </div>
+                                    
+                                    
+                                </div>
+                            </div>
+                        <!-- End Template(view) for Legisator Detail -->
+                        </div>
+                    <!-- End Of tab-content clearfix -->
+                    </div>
+                    <!-- End of panel-group panel-default -->
+                    
+                </div>
+
+                </div>
+                <!-- End of Carousel class -->
+                
+                </div>
+                <!-- End of Carousel inner with role class -->
+            
+
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+
+            
+            
+
+            <div id="outputCommittee"  ng-controller="Committe"  role="tabpanel" class="tab-pane" >
+                <div id="tabName">
+                <h3>Committes</h3>
+                </div>
+                
+                <div class="item active">
+                    <div class="panel-group panel-default">
+                        <div class="panel-heading">
+                            <!-- Nav tabs -->
+                            <ul class="nav nav-tabs" role="tablist">
+                                <li role="presentation" class="active">
+                                    <a href="#byComHouse" aria-controls="byComHouse" role="tab" data-toggle="tab">House</a>
+                                </li>
+                                <li role="presentation">
+                                    <a href="#byComSenate" aria-controls="byComSenate" role="tab" data-toggle="tab">Senate</a>
+                                </li>
+                                <li role="presentation">
+                                    <a href="#byComJoint" aria-controls="byComJoint" role="tab" data-toggle="tab">Joint</a>
+                                </li>
+                                
+                            </ul>
+                        </div>
+
+                    <!-- Require this div to add all the remaining divs in a single div for tab functionality -->
+                    
+                        <div class="tab-content clearfix whitebackground">
+                            <!-- Template(view) for Legisator by State -->
+                            <div role="tabpanel"  class="tab-pane active" id="byComHouse">
+                                <div class="panel panel-default panel-body">
+                                        <form class="form-inline">
+                                            
+                                            <div class="row rowHeader">
+                                                <div class="col-xs-3">
+                                                    <p class="h3">House</p>
+                                                </div>
+                                                <div class="col-xs-3 col-xs-offset-6">
+                                                    <input ng-model="CommHFilter" class="form-control h3" id="CommHFilter" name="CommHFilter" type="text" placeholder="Search">
+                                                </div>
+                                            </div>
+                                            
+                                            <table class="table">
+                                            <thead>
+                                                  <tr>
+                                                    <th></th>
+                                                    <th>Chamber</th>
+                                                    <th>Committe ID</th>
+                                                    <th>Name</th>
+                                                    <th>Parent Committee</th>
+                                                    <th>Contact</th>
+                                                    <th>Office</th>
+                                                    <th></th>
+                                                  </tr>
+                                            </thead>
+                                                <tbody>
+                                                    <tr pagination-id="byComHouse" dir-paginate="x in parsedJsonCommitte  | filter:{chamber:'house'}| filter:CommHFilter  | itemsPerPage: 10">
+                                                        <td class="col-xs-1"><button id="billFavBtn" ng-click="addToLocalStorage(x.committee_id)" class="btn btn-default item1 " aria-label="Left Align">
+                                                        <i ng-class="comIdArr[x.committee_id] ? 'fa fa-star-o icon-clicked' : 'fa fa-star-o' "></i>
+                                                        </button>
+                                                        </td>
+                                                        <td class="col-xs-1"><img class= "partyIcon" ng-src="{{x.chamber == 'senate' ? 'http://cs-server.usc.edu:45678/hw/hw8/images/s.svg' : x.chamber == 'house' ? 'http://cs-server.usc.edu:45678/hw/hw8/images/h.png' : '' }}">{{ x.chamber == 'house' ? 'House' : x.chamber == 'senate' ? 'Senate' : 'Joint'}}</td>
+                                                        <td class="col-xs-1">{{x.committee_id}}</td>
+                                                        <td class="col-xs-4">{{x.name}}</td>
+                                                        <td>{{x.hasOwnProperty('parent_committee_id') ? x.parent_committee_id : NA}}</td>
+                                                        <td>{{x.phone}}</td>
+                                                        <td>{{x.office}}</td>
+                                                    </tr>
+
+                                                </tbody>
+                                              </table>
+                                        </form>
+                                        <div class="text-center">
+                                            <dir-pagination-controls pagination-id="byComHouse" boundary-links="true" on-page-change="pageChangeHandler(newPageNumber)" template-url="dirPagination.tpl.html"></dir-pagination-controls>
+                                        </div>
+
+                        
+                                </div>
+                            </div>
+                            <!-- END OF Template(view) for Legisator by State -->
+
+                            <div role="tabpanel"  class="tab-pane" id="byComSenate">
+                                <div class="panel panel-default panel-body">
+                                        <form class="form-inline">
+                                            
+                                            <div class="row rowHeader">
+                                                <div class="col-xs-3">
+                                                    <p class="h3">Senate</p>
+                                                </div>
+                                                <div class="col-xs-3 col-xs-offset-6">
+                                                    <input ng-model="CommSFilter" class="form-control h3" id="CommSFilter" name="CommSFilter" type="text" placeholder="Search">
+                                                </div>
+                                            </div>
+                                            
+                                            <table class="table">
+                                            <thead>
+                                                  <tr>
+                                                    <th></th>
+                                                    <th>Chamber</th>
+                                                    <th>Committe ID</th>
+                                                    <th>Name</th>
+                                                    <th>Parent Committee</th>
+                                                  </tr>
+                                            </thead>
+                                                <tbody>
+                                                    <tr pagination-id="bySenHouse" dir-paginate="x in parsedJsonCommitte | filter:{chamber:'senate'}| filter:CommSFilter| itemsPerPage: 10">
+                                                        <td><button id="billFavBtn" ng-click="addToLocalStorage(x.committee_id)" class="btn btn-default item1 " aria-label="Left Align">
+                                                        <i ng-class="comIdArr[x.committee_id] ? 'fa fa-star-o icon-clicked' : 'fa fa-star-o' "></i>
+                                                        </button>
+                                                        <td><img class= "partyIcon" ng-src="{{x.chamber == 'senate' ? 'http://cs-server.usc.edu:45678/hw/hw8/images/s.svg' : x.chamber == 'house' ? 'http://cs-server.usc.edu:45678/hw/hw8/images/h.png' : '' }}">{{ x.chamber == 'house' ? 'House' : x.chamber == 'senate' ? 'Senate' : 'Joint'}}</td>
+                                                        <td>{{x.committee_id}}</td>
+                                                        <td>{{x.name}}</td>
+                                                        <td>{{x.hasOwnProperty('parent_committee_id') ? x.parent_committee_id : NA}}</td>
+                                                    </tr>
+
+                                                </tbody>
+                                              </table>
+                                        </form>
+                                        <div class="text-center">
+                                            <dir-pagination-controls pagination-id="bySenHouse" boundary-links="true" on-page-change="pageChangeHandler(newPageNumber)" template-url="dirPagination.tpl.html"></dir-pagination-controls>
+                                        </div>
+                        
+                                </div>
+                            </div>
+                            
+
+                            
+                            <div role="tabpanel"  class="tab-pane" id="byComJoint">
+                                <div class="panel panel-default panel-body">
+                                        <form class="form-inline">
+                                            
+                                            <div class="row rowHeader">
+                                                <div class="col-xs-3">
+                                                    <p class="h3">Joint</p>
+                                                </div>
+                                                <div class="col-xs-3 col-xs-offset-6">
+                                                    <input ng-model="CommJFilter" class="form-control h3" id="CommJFilter" name="CommJFilter" type="text" placeholder="Search">
+                                                </div>
+                                            </div>
+                                            
+                                            <table class="table">
+                                            <thead>
+                                                  <tr>
+                                                    <th></th>
+                                                    <th>Chamber</th>
+                                                    <th>Committe ID</th>
+                                                    <th>Name</th>
+                                                  </tr>
+                                            </thead>
+                                                <tbody>
+                                                    <tr pagination-id="byJoinHouse" dir-paginate="x in parsedJsonCommitte | filter:{chamber:'joint'}| filter:CommJFilter |  itemsPerPage: 10">
+                                                        <td><button id="billFavBtn" ng-click="addToLocalStorage(x.committee_id)" class="btn btn-default item1"  aria-label="Left Align">
+                                                        <i ng-class="comIdArr[x.committee_id] ? 'fa fa-star-o icon-clicked' : 'fa fa-star-o' "></i>
+                                                        </button></td>
+                                                        <td><img class= "partyIcon" ng-src="{{x.chamber == 'senate' ? 'http://cs-server.usc.edu:45678/hw/hw8/images/s.svg' : x.chamber == 'house' ? 'http://cs-server.usc.edu:45678/hw/hw8/images/h.png' : '' }}">{{ x.chamber == 'house' ? 'House' : x.chamber == 'senate' ? 'Senate' : 'Joint'}}</td>
+                                                        <td>{{x.committee_id}}</td>
+                                                        <td>{{x.name}}</td>
+                                                    </tr>
+
+                                                </tbody>
+                                              </table>
+                                        </form>
+                                        <div class="text-center">
+                                            <dir-pagination-controls pagination-id="byJoinHouse" boundary-links="true" on-page-change="pageChangeHandler(newPageNumber)" template-url="dirPagination.tpl.html"></dir-pagination-controls>
+                                        </div>
+                                    
+                        
+                                </div>
+                            </div>                            
+                            
+                            
+                            
+                        </div>
+                        <!-- End of divs for all tabs -->
+
+                    
+                    </div>
+                <!-- End of panel-group class -->
+                
+                </div>
+                
+                
+                <!-- End of Carousel inner with role class -->
+            </div>
+            
+            
+            
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+
+            <div id="FavoriteTab"  ng-controller="Favorite"  role="tabpanel" class="tab-pane" >
+                <div id="tabName">
+                <h3>Favorites</h3>
+                </div>
+                <div class="carousel slide" id="fav_carousal" data-interval="false">
+                    <div class="carousel-inner" role="listbox">
+                        <div class="item active">
+                        <div class="panel-group panel-default">
+                        <div class="panel-heading">
+                            <!-- Nav tabs -->
+                            <ul class="nav nav-tabs" role="tablist">
+                                <li role="presentation" class="active">
+                                    <a href="#byFavLeg" aria-controls="byFavLeg" role="tab" data-toggle="tab">Legislators</a>
+                                </li>
+                                <li role="presentation">
+                                    <a href="#byFavBill" aria-controls="byFavBill" role="tab" data-toggle="tab">Bills</a>
+                                </li>
+                                <li role="presentation">
+                                    <a href="#byFavComm" aria-controls="byFavComm" role="tab" data-toggle="tab">Committees</a>
+                                </li>
+                            </ul>
+                        </div>
+
+                    <!-- Require this div to add all the remaining divs in a single div for tab functionality -->
+                    
+                    <div class="tab-content clearfix whitebackground">
+                        <!-- Template(view) for Legisator by State -->
+                        <div role="tabpanel"  class="tab-pane active" id="byFavLeg">
+                            <div class="panel panel-default panel-body">
+                                    <form class="form-inline">
+                                        
+                                        <div class="row rowHeader">
+                                            <div class="col-xs-3">
+                                                <p class="h3">Favorite Legislators</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <table class="table">
+                                        <thead>
+                                              <tr>
+                                                <th></th>
+                                                <th>Image</th>
+                                                <th>Party</th>
+                                                <th>Name</th>
+                                                <th>Chamber</th>
+                                                <th>State</th>
+                                                <th> Email</th>
+                                                <th></th>
+                                              </tr>
+                                        </thead>
+                                            <tbody>
+                                                <tr pagination-id="byFavLegs" dir-paginate="x in parsedJsonFavLS | itemsPerPage: 10">
+                                                    <td>
+                                                        <button id="billFavBtn" ng-click="removeFromLocalStorage('Legs',x.bioguide_id)" class="btn btn-default item1 " aria-label="Left Align">
+                                                        <i class="fa fa-trash-o"></i>
+                                                        </button>
+                                                    </td>
+                                                    <td><img class="partyIcon" ng-src="{{'https://theunitedstates.io/images/congress/original/'+x.bioguide_id+'.jpg'}}"></img></td>
+                                                    <td><img class="partyIcon" ng-src="{{ x.party == 'R' ? 'http://cs-server.usc.edu:45678/hw/hw8/images/r.png' : x.party == 'D' ? 'http://cs-server.usc.edu:45678/hw/hw8/images/d.png' : 'http://independentamericanparty.org/wp-content/themes/v/images/logo-american-heritage-academy.png'}}"></img></td>
+                                                    
+                                                    <td>{{ x.last_name }}, {{ x.first_name}}</td>
+                                                    
+                                                    <td><img class="partyIcon" ng-src="{{x.chamber == 'senate' ? 'http://cs-server.usc.edu:45678/hw/hw8/images/s.svg' : x.chamber == 'house' ? 'http://cs-server.usc.edu:45678/hw/hw8/images/h.png' : '' }}">{{ x.chamber == 'house' ? 'House' : x.chamber == 'senate' ? 'Senate' : 'NA'}}</td>
+                                                    
+                                                    <td>{{ x.state_name }}</td>
+                                                    <td><a>{{ x.oc_email }}</a></td>
+                                                    <td><button type="button" class="btn btn-primary" ng-click="getFavLegDetails(x.bioguide_id)" >View Details</button></td>
+                                                </tr>
+
+                                            </tbody>
+                                          </table>
+                                          </form>
+                                        <div class="text-center">
+                                            <dir-pagination-controls pagination-id="byFavLegs" boundary-links="true" on-page-change="pageChangeHandler(newPageNumber)" template-url="dirPagination.tpl.html"></dir-pagination-controls>
+                                        </div>
+                                          
+                                        
+                    
+                            </div>
+                        </div>
+
+                        
+                        
+                        
+                        
+                        <div role="tabpanel"  class="tab-pane" id="byFavBill">
+                            <div class="panel panel-default panel-body">
+                                    <form class="form-inline">
+                                        
+                                        <div class="row rowHeader">
+                                            <div class="col-xs-3">
+                                                <p class="h3">Favorite Bills</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <table class="table">
+                                        <thead>
+                                                <td></td>
+                                                <td>Bill Id</td>    
+                                                <td>Bill Type</td>    
+                                                <td>Bill Title</td>    
+                                                <td>Bill Chamber</td>    
+                                                <td>Introduced On</td>
+                                                <td>Sponsor</td>    
+                                                <td></td>    
+                                                
+                                        </thead>
+                                            <tbody>
+                                                <tr pagination-id="byFavBills" ng-repeat="x in parsedJsonFavBS ">
+                                                    <td><button id="BillRmvBtn" ng-click="removeFromLocalStorage('Bills',x.bill_id)" class="btn btn-default item1 " aria-label="Left Align">
+                                                        <i class="fa fa-trash-o"></i>
+                                                        </button>
+                                                    </td>
+                                                    
+
+                                                    <td>{{x.bill_id.toUpperCase()}}</td>
+                                                    <td>{{x.bill_type.toUpperCase()}}</td>
+                                                    <td>{{x.official_title }}</td>
+                                                    <td>{{x.chamber.charAt(0).toUpperCase()+x.chamber.substr(1)}}</td>
+                                                    <td>{{x.introduced_on | date : "MMM d,yyyy"}}</td>
+                                                    <td>{{x.sponsor.title}}.  {{x.sponsor.last_name}}, {{x.sponsor.first_name}}</td>
+                                                    <td><button ng-click="getFavBillDetails(x.bill_id)" type="button" class="btn btn-primary" href="#bill_carousal">View Details</button> </td>
+                                                </tr>
+                                            </tbody>
+                                          </table>
+                                    </form>
+                                        <div class="text-center">
+                                            <dir-pagination-controls pagination-id="byFavBills" boundary-links="true" on-page-change="pageChangeHandler(newPageNumber)" template-url="dirPagination.tpl.html"></dir-pagination-controls>
+                                        </div>
+                        
+                    
+                            </div>
+                        </div>
+                        <!-- END OF Template(view) for Legisator by State -->
+
+                        <div role="tabpanel"  class="tab-pane" id="byFavComm">
+                            <div class="panel panel-default panel-body">
+                                    <form class="form-inline">
+                                        
+                                        <div class="row rowHeader">
+                                            <div class="col-xs-3">
+                                                <p class="h3">Favorite Committee</p>
+                                            </div>
+                                        </div>
+                                        
+                                            <table class="table">
+                                            <thead>
+                                                  <tr>
+                                                    <th></th>
+                                                    <th>Chamber</th>
+                                                    <th>Committe ID</th>
+                                                    <th>Name</th>
+                                                    <th>Parent Committee</th>
+                                                    <th>Sub Committee</th>
+                                                  </tr>
+                                            </thead>
+                                                <tbody>
+                                                    <tr pagination-id="byFavComs" dir-paginate="x in parsedJsonFavCS | itemsPerPage: 10">
+                                                        <td><button id="ComRmvBtn" ng-click="removeFromLocalStorage('Comm',x.committee_id)" class="btn btn-default item1 " aria-label="Left Align">
+                                                        <i class="fa fa-trash-o"></i>
+                                                        </button>
+                                                        <td>{{x.chamber}}</td>
+                                                        <td>{{x.committee_id}}</td>
+                                                        <td>{{x.name}}</td>
+                                                        <td>{{x.hasOwnProperty('parent_committee_id') ? x.parent_committee_id : NA}}</td>
+                                                        <td>{{x.subcommittee}}</td>
+                                                    </tr>
+
+                                                </tbody>
+                                              </table>
+                                        </form>
+                                        <div class="text-center">
+                                            <dir-pagination-controls pagination-id="byFavComs" boundary-links="true" on-page-change="pageChangeHandler(newPageNumber)" template-url="dirPagination.tpl.html"></dir-pagination-controls>
+                                        </div>
+                            
+                        
+                                </div>
+
+                        </div>
+                        
+                    </div>
+                    <!-- End of divs for all tabs -->
+
+                    
+                </div>
+                <!-- End of panel-group class -->
+                
+                </div>
+                <!-- End of class active for carousel-->
+<!--                <div class="item" id="FavLegDetails">
+                
+                    <div class="panel-group panel-default">
+                    
+                        <div class="tab-content clearfix">
+                        
+                            <div role="tabpanel"  class="tab-pane  active">
+                                <div class="panel panel-default panel-body">
+                                    <div class="row"> 
+                                    
+                                        <div class="col-xs-6">                                            
+                                            <table class="table">
+                                                    <tbody>
+                                                        <tr>
+                                                            <th> Bill ID </th>
+                                                            <td>{{ BillDispID }}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th> Title </th>
+                                                            <td>{{ BillDispTitle }}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th> Bill Type </th>
+                                                            <td>{{ BillDispType }}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th> Sponsor </th>
+                                                            <td>{{ BillDispSponsor }}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th> Chamber </th>
+                                                            <td>{{ BillDispChamber }}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th> Status </th>
+                                                            <td>{{ BillDispStatus }}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th> Introduced On </th>
+                                                            <td>{{ BillDispIntro | date : "MMM d,yyyy" }}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th> Congress URL </th>
+                                                            <td><a ng-href="{{ BillDispCURI }}" target="_blank">Link</a></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th> Version Status </th>
+                                                            <td>{{ BillDispVer }}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th> Bill URL </th>
+                                                            <td><a ng-href="{{ BillDispBURI }}" target="_blank">Link</a></td>
+                                                        </tr>
+                                                    </tbody>
+                                            </table>
+                                        </div>
+                                        
+                                        <div class="col-xs-6">
+                                            <object  data="{{BillDispBURI}}" style="width: 500px; height: 500px;"></object>
+                                        </div>
+                                    </div>
+                                    
+                                    
+                                </div>
+                            </div>
+                       
+                        </div>
+                    
+                    </div>
+                
+                    
+                </div>
+                -->
+                </div>
+                <!-- End of Carousel class -->
+                
+                </div>
+                <!-- End of Carousel inner with role class -->
+            </div>
+            
+            
+
+
+
+            
+
+
+            
+            
+            </div>
+            
+
             
     </div>
 

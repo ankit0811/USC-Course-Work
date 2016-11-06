@@ -10,15 +10,32 @@
     height:100%;    
 }
 
-.canvas{
-    width:250px;
+
+#canvas #menu{
+    width:15%;
     visibility:visible;
+	-webkit-transition: all 0.5s ease;
+    -moz-transition: all 0.5s ease;
+    -o-transition: all 0.5s ease;
+    transition: all 0.5s ease;
+    
+
 }
+
 
 #canvas.toggled{
     overflow:None;
+}
+
+
+#canvas.toggled #menu{
     width:0px;
     visibility:collapse;
+	-webkit-transition: all 0.5s ease;
+    -moz-transition: all 0.5s ease;
+    -o-transition: all 0.5s ease;
+    transition: all 0.5s ease;
+
 }
 
 
@@ -28,22 +45,28 @@
 }
 
 #canvas.toggled sidebar-nav li{
-    padding-left:0px;
     visibility:collapse;
 }
 
-.menu{
-    width:250px;
-    visibility:visible;
+ul{
+    -webkit-padding-start: 0px;
+}
+
+.col-xs-1{
+    padding-right:0px;
+    padding-left:0px;
 }
 
 .sidebar-nav {
     position: absolute;
-    width: 250px;
+    width: 15%;
     margin: 0;
     list-style: none;
     padding-top: 00px;
 }
+
+
+
 
 .sidebar-nav li {
     text-indent: 0px;
@@ -56,10 +79,12 @@
     color: #6F6F6F;
 }
 
-#output
+
+
+#panelOut
 {
 	position: relative;
-	margin-left: 250px;
+	margin-left: 15%;
 	margin-right: 0px;
 	-webkit-transition: all 0.5s ease;
     -moz-transition: all 0.5s ease;
@@ -67,7 +92,9 @@
     transition: all 0.5s ease;
 	width: auto;
 }
-#wrapper.toggled #output 
+
+
+#canvas.toggled #panelOut
 {
 	margin-left: 0px;
 	-webkit-transition: all 0.5s ease;
@@ -77,7 +104,58 @@
 }
 
 
+
+
+
+
+#canvas.toggled .i
+{
+	margin-left: 0px;
+	-webkit-transition: all 0.5s ease;
+    -moz-transition: all 0.5s ease;
+    -o-transition: all 0.5s ease;
+    transition: all 0.5s ease;
+}
+
+
+
 .partyIcon{
     height:30px;
     width:30px;
+}
+
+.icon-clicked{
+    color:yellow;
+    -webkit-text-stroke-width: 4px;
+    
+}
+
+
+.rowHeader{
+    background-color: #f5f5f5;;
+}
+
+.panel-group .panel {
+    border-radius: 4px;
+    padding-top: 0px;
+    margin:10px;
+}
+
+.panel-default>.panel-heading {
+
+    background-color: white;
+}
+
+.nav-tabs>li.active>a, .nav-tabs>li.active>a:focus, .nav-tabs>li.active>a:hover {
+        border-bottom-color: #ddd;
+}
+
+/*For Heading color (Legislator/Bills/Committee/Favourite)*/
+.container-fluid {
+    background-color: #f5f5f5;
+}
+
+
+tab-content-clearfix-whitebackground{
+    background-color:white;
 }
