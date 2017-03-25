@@ -1,0 +1,4 @@
+deceptive:0.500000
+truthful:0.500000
+positive:0.500000
+negative:0.500000
